@@ -1,5 +1,6 @@
 package nesc.workflow.controller;
 
+import nesc.workflow.service.ProcessService;
 import nesc.workflow.utils.ActivitiUtils;
 import nesc.workflow.utils.CommonUtil;
 import nesc.workflow.utils.JackJsonUtil;
@@ -9,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.activiti.api.process.model.ProcessDefinition;
 import org.activiti.bpmn.model.BpmnModel;
 import org.activiti.engine.impl.util.CollectionUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -19,18 +22,40 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@Api(tags = "中止流程、激活流程、查询流程定义")
+@Api(tags = "查询流程定义、中止流程、激活流程")
 @Slf4j
 @RequestMapping("/workflow/process/definition")
 public class ProcessDefinitionController extends BaseController{
 
+    @Autowired
+    ProcessService processService;
 
-    @PostMapping(path = "suspendProcess")
+    @PostMapping(path = "findDefinitionsList")
+    @ApiOperation(value = "查询流程定义", notes = "查询流程定义")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pdName", value = "流程名称", dataType = "String", paramType = "query", example = ""),
+            @ApiImplicitParam(name = "curPage", value = "当前页", dataType = "int", paramType = "query", example = ""),
+            @ApiImplicitParam(name = "limit", value = "每页条数", dataType = "int", paramType = "query", example = "")
+    })
+    public RestMessage findDefinitionsList(String pdName,int curPage, int limit) {
+        RestMessage restMessage = null;
+        List<Map<String, Object>> resultList = null;
+        try {
+            resultList = processService.findDefinitionsList(pdName, curPage, limit);
+            restMessage = RestMessage.success("查询成功", resultList);
+        } catch (Exception e) {
+            restMessage = RestMessage.fail("查询失败", e.getMessage());
+            log.error("查询流程定义,异常:{}", e);
+        }
+        return restMessage;
+    }
+
+    @PostMapping(path = "suspendProcessDefinitions")
     @ApiOperation(value = "根据部署ID中止流程", notes = "根据流程ID中止流程")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "deploymentId", value = "部署ID", dataType = "String", paramType = "query", example = "")
     })
-    public RestMessage suspendProcess(@RequestParam("deploymentId") String deploymentId) {
+    public RestMessage suspendProcessDefinitions(@RequestParam("deploymentId") String deploymentId) {
         RestMessage restMessage = new RestMessage();
         try {
             ProcessDefinition def = (ProcessDefinition) repositoryService.createProcessDefinitionQuery()
@@ -46,12 +71,12 @@ public class ProcessDefinitionController extends BaseController{
         return restMessage;
     }
 
-    @PostMapping(path = "activeProcess")
+    @PostMapping(path = "activeProcessDefinitions")
     @ApiOperation(value = "根据部署ID激活流程", notes = "根据流程ID激活流程")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "deploymentId", value = "部署ID", dataType = "String", paramType = "query", example = "")
     })
-    public RestMessage activeProcess(@RequestParam("deploymentId") String deploymentId) {
+    public RestMessage activeProcessDefinitions(@RequestParam("deploymentId") String deploymentId) {
         RestMessage restMessage = new RestMessage();
         try {
             ProcessDefinition def = (ProcessDefinition) repositoryService.createProcessDefinitionQuery()
@@ -66,53 +91,6 @@ public class ProcessDefinitionController extends BaseController{
         }
         return restMessage;
     }
-
-
-
-    @PostMapping(path = "searchDefinitions")
-    @ApiOperation(value = "查询流程定义", notes = "查询流程定义")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "curPage", value = "当前页", dataType = "int", paramType = "query", example = ""),
-            @ApiImplicitParam(name = "limit", value = "每页条数", dataType = "int", paramType = "query", example = "")
-    })
-    public RestMessage searchDefinitions(int curPage, int limit) {
-        RestMessage restMessage = null;
-        List<Map<String, Object>> resultList = new ArrayList<>();
-        List<org.activiti.engine.repository.ProcessDefinition> processDefinitionsList = new ArrayList<>();
-        try {
-            processDefinitionsList = repositoryService
-                    .createProcessDefinitionQuery()
-                    .listPage(commonUtil
-                                .listPagedTool(curPage,limit), limit);
-            //result = jackJsonUtil.activitiResult(processDefinitionsList);
-            if (CollectionUtil.isNotEmpty(processDefinitionsList)) {
-
-                processDefinitionsList.forEach(s -> {
-                    Map<String, Object> resultMap = new HashMap<>();
-
-                    resultMap.put("pdId", s.getId());
-                    resultMap.put("pdName", s.getName());
-                    resultMap.put("pdKey", s.getKey());
-                    // 流程定义ID
-                    resultMap.put("version", s.getVersion());
-                    resultMap.put("deploymentId", s.getDeploymentId());
-                    resultMap.put("resourceName", s.getDiagramResourceName());
-                    resultMap.put("desc", s.getDescription());
-                    resultMap.put("status", s.isSuspended());
-                    resultList.add(resultMap);
-                });
-               // restMessage = RestMessage.success("查询成功", resultList);
-            }
-            restMessage = RestMessage.success("查询成功", resultList);
-        } catch (Exception e) {
-            restMessage = RestMessage.fail("查询失败", e.getMessage());
-            log.error("查询流程定义,异常:{}", e);
-        }
-        return restMessage;
-    }
-
-
-
 
     @PostMapping(path = "searchDefinitionsByKey")
     @ApiOperation(value = "根据流程key查询流程实例", notes = "查询流程实例")
