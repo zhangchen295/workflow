@@ -5,8 +5,10 @@ import nesc.workflow.exception.ServiceException;
 import nesc.workflow.service.ProcessService;
 import nesc.workflow.utils.CommonUtil;
 import nesc.workflow.utils.RestMessage;
+
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.impl.util.CollectionUtil;
+import org.activiti.engine.repository.ProcessDefinition;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -76,5 +78,33 @@ public class ProcessServiceImpl implements ProcessService {
             throw new ServiceException("查询流程定义失败", e);
         }
         return resultList;
+    }
+
+    @Override
+    public void suspendProcessDef(String deploymentId) throws ServiceException {
+        try {
+            ProcessDefinition def = repositoryService.createProcessDefinitionQuery()
+                    .deploymentId(deploymentId)
+                    .singleResult();
+            //中止流程
+            repositoryService.suspendProcessDefinitionById(def.getId());
+        } catch (Exception e) {
+            log.error("根据部署ID中止流程,异常:{}", e);
+            throw new ServiceException("根据部署ID中止流程失败", e);
+        }
+    }
+
+    @Override
+    public void activeProcessDef(String deploymentId) throws ServiceException {
+        try {
+            ProcessDefinition def = repositoryService.createProcessDefinitionQuery()
+                    .deploymentId(deploymentId)
+                    .singleResult();
+            //激活流程
+            repositoryService.activateProcessDefinitionById(def.getId());
+        } catch (Exception e) {
+            log.error("根据部署ID激活流程,异常:{}", e);
+            throw new ServiceException("根据部署ID激活流程失败", e);
+        }
     }
 }

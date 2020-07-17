@@ -50,19 +50,15 @@ public class ProcessDefinitionController extends BaseController{
         return restMessage;
     }
 
-    @PostMapping(path = "suspendProcessDefinitions")
+    @PostMapping(path = "suspendProcessDef")
     @ApiOperation(value = "根据部署ID中止流程", notes = "根据流程ID中止流程")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "deploymentId", value = "部署ID", dataType = "String", paramType = "query", example = "")
     })
-    public RestMessage suspendProcessDefinitions(@RequestParam("deploymentId") String deploymentId) {
+    public RestMessage suspendProcessDef(@RequestParam("deploymentId") String deploymentId) {
         RestMessage restMessage = new RestMessage();
         try {
-            ProcessDefinition def = (ProcessDefinition) repositoryService.createProcessDefinitionQuery()
-                            .deploymentId(deploymentId)
-                            .singleResult();
-            //中止流程
-            repositoryService.suspendProcessDefinitionById(def.getId());
+            processService.suspendProcessDef(deploymentId);
             restMessage = RestMessage.success("流程中止成功", null);
         } catch (Exception e) {
             restMessage = RestMessage.fail("流程中止失败", e.getMessage());
@@ -71,19 +67,15 @@ public class ProcessDefinitionController extends BaseController{
         return restMessage;
     }
 
-    @PostMapping(path = "activeProcessDefinitions")
+    @PostMapping(path = "activeProcessDef")
     @ApiOperation(value = "根据部署ID激活流程", notes = "根据流程ID激活流程")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "deploymentId", value = "部署ID", dataType = "String", paramType = "query", example = "")
     })
-    public RestMessage activeProcessDefinitions(@RequestParam("deploymentId") String deploymentId) {
+    public RestMessage activeProcessDef(@RequestParam("deploymentId") String deploymentId) {
         RestMessage restMessage = new RestMessage();
         try {
-            ProcessDefinition def = (ProcessDefinition) repositoryService.createProcessDefinitionQuery()
-                    .deploymentId(deploymentId)
-                    .singleResult();
-            //激活流程
-            repositoryService.activateProcessDefinitionById(def.getId());
+            processService.activeProcessDef(deploymentId);
             restMessage = RestMessage.success("流程激活成功", null);
         } catch (Exception e) {
             restMessage = RestMessage.fail("流程中激活失败", e.getMessage());
@@ -113,7 +105,6 @@ public class ProcessDefinitionController extends BaseController{
         return restMessage;
     }
 
-    //展示模板图(根据流程定义key展示最新的模板图,此处也可以换为根据模板key展示最新模板图)
     @PostMapping(path = "showImgTemplate")
     @ApiOperation(value = "根据流程定义key展示最新的模板图", notes = "此处也可以换为根据模板key展示最新模板图")
     @ApiImplicitParams({

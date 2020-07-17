@@ -9,4 +9,8 @@ import java.util.Map;
 public interface ProcessService {
 
     List<Map<String, Object>> findDefinitionsList(String pdName,int curPage, int limit) throws ServiceException;
+
+    void suspendProcessDef(String deploymentId) throws ServiceException;
+
+    void activeProcessDef(String deploymentId) throws ServiceException;
 }
