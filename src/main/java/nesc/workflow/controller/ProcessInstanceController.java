@@ -291,62 +291,7 @@ public class ProcessInstanceController extends BaseController{
     }
 
 
-    @PostMapping(path = "searchFinished")
-    @ApiOperation(value = "根据流程ID查询流程实例", notes = "查询流程实例")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "userId", value = "用户id", dataType = "String", paramType = "query")
-    })
-    public RestMessage searchFinished(@RequestParam("userId") String userId) {
-        RestMessage restMessage = new RestMessage();
-        List<HistoricTaskInstance> historicTaskInstanceList = new LinkedList<>();
-        List<Map<String, Object>> resultList = new ArrayList<>();
-        List<HistoricTaskInstance> list = null;
-        ProcessInstance pi = null;
-        try {
-            //list = activitiUtils.queryFinished(userId, processDefinitionKey);
-            List<HistoricProcessInstance> hisProInstance = historyService.createHistoricProcessInstanceQuery()
-                    .involvedUser(userId).finished()
-                    .orderByProcessInstanceEndTime().desc().list();
-            for (HistoricProcessInstance hisInstance : hisProInstance) {
-                List<HistoricTaskInstance> hisTaskInstanceList = historyService.createHistoricTaskInstanceQuery()
-                        .processInstanceId(hisInstance.getId()).processFinished()
-                        .taskAssignee(userId)
-                        .orderByHistoricTaskInstanceEndTime().desc().list();
-                for (HistoricTaskInstance taskInstance : hisTaskInstanceList) {
-                    if (taskInstance.getAssignee().equals(userId)) {
-                        historicTaskInstanceList.add(taskInstance);
-                    }
-                }
-            }
 
-        } catch (Exception e) {
-            restMessage = RestMessage.fail("查询失败", e.getMessage());
-            log.error("根据流程ID查询流程实例,异常:{}", e);
-        }
-        if (CollectionUtil.isNotEmpty(historicTaskInstanceList)) {
-
-            historicTaskInstanceList.forEach(s -> {
-                Map<String, Object> resultMap = new HashMap<>();
-                //ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(s.getProcessInstanceId()).singleResult();
-                HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(s.getProcessInstanceId()).singleResult();
-                // 流程实例ID
-                resultMap.put("processId", s.getProcessInstanceId());
-                resultMap.put("processName", historicProcessInstance.getProcessDefinitionName());
-                // 流程定义ID
-                resultMap.put("processDefinitionKey", s.getTaskDefinitionKey());
-                resultMap.put("startTime", s.getStartTime());
-                resultMap.put("endTime", s.getEndTime());
-                resultMap.put("workTime", s.getWorkTimeInMillis());
-                resultMap.put("taskName", s.getName());
-                resultMap.put("assignee", s.getAssignee());
-                resultMap.put("id", s.getId());
-                resultMap.put("status", "完成");
-                resultList.add(resultMap);
-            });
-        }
-        restMessage = RestMessage.success("查询成功", resultList);
-        return restMessage;
-    }
 
     @PostMapping(path = "searchHisComments")
     @ApiOperation(value = "查询历史批注", notes = "查询历史批注")

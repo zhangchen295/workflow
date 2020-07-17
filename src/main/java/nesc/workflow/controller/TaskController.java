@@ -1,21 +1,22 @@
 package nesc.workflow.controller;
 
 import nesc.workflow.bean.TaskBean;
+import nesc.workflow.service.TaskTypeService;
 import nesc.workflow.utils.ActivitiUtils;
 import nesc.workflow.utils.RestMessage;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
+import org.activiti.engine.history.HistoricProcessInstance;
+import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.impl.identity.Authentication;
 import org.activiti.engine.impl.util.CollectionUtil;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author zjialin<br>
@@ -30,47 +31,24 @@ import java.util.Map;
 @RequestMapping("/workflow/task")
 public class TaskController extends BaseController {
 
+    @Autowired
+    TaskTypeService taskTypeService;
 
     @PostMapping(path = "findTaskByAssignee")
     @ApiOperation(value = "根据流程assignee查询当前人的个人任务", notes = "根据流程assignee查询当前人的个人任务")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "assignee", value = "代理人（当前用户）", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "processName", value = "流程名称", dataType = "String", paramType = "query"),
     })
-    public RestMessage findTaskByAssignee(@RequestParam("assignee") String assignee) {
-        RestMessage restMessage = new RestMessage();
-        List<Map<String, String>> resultList =  new ArrayList<>();;
+    public RestMessage findTaskByAssignee(@RequestParam("assignee") String assignee,
+                                          @RequestParam("pdName") String pdName,
+                                          @RequestParam("curPage") int curPage,
+                                          @RequestParam("limit") int limit) {
+        RestMessage restMessage = null;
+        List<Map<String, String>> resultList =  null;
         try {
-            //指定个人任务查询
-            List<Task> taskList = taskService.createTaskQuery().taskAssignee(assignee).list();
-            if (CollectionUtil.isNotEmpty(taskList)) {
-                for (Task task : taskList) {
-                    Map<String, String> resultMap = new HashMap<>();
-                    //task.
-                    /* 任务ID */
-                    resultMap.put("taskID", task.getId());
-                    /* 任务名称 */
-                    resultMap.put("taskName", task.getName());
-                    /* 任务的创建时间 */
-                    resultMap.put("taskCreateTime", task.getCreateTime().toString());
-                    /* 任务的办理人 */
-                    resultMap.put("taskAssignee", task.getAssignee());
-                    /* 流程实例ID */
-                    resultMap.put("processInstanceId", task.getProcessInstanceId());
-                    /* 执行对象ID */
-                    resultMap.put("executionId", task.getExecutionId());
-                    /* 流程定义ID */
-                    resultMap.put("processDefinitionId", task.getProcessDefinitionId());
-
-                    ProcessInstance instance = runtimeService.createProcessInstanceQuery()
-                            .processInstanceId(task.getProcessInstanceId()).singleResult();
-                    resultMap.put("pbKey", instance.getProcessDefinitionKey());
-                    resultMap.put("pbName", instance.getProcessDefinitionName());
-                    resultList.add(resultMap);
-                }
+                resultList = taskTypeService.findTaskByAssignee(assignee, pdName, curPage, limit);
                 restMessage = RestMessage.success("查询成功", resultList);
-            } else {
-                restMessage = RestMessage.success("查询成功", resultList);
-            }
         } catch (Exception e) {
             restMessage = RestMessage.fail("查询失败", e.getMessage());
             log.error("根据流程assignee查询当前人的个人任务,异常:{}", e);
@@ -173,6 +151,30 @@ public class TaskController extends BaseController {
         }catch (Exception e){
             restMessage = RestMessage.fail("任务撤回失败", e.getMessage());
             log.error("任务撤回,异常:{}", e);
+        }
+        return restMessage;
+    }
+
+    @PostMapping(path = "getInvolveTaskFinishList")
+    @ApiOperation(value = "根据流程ID查询流程实例", notes = "查询流程实例")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userId", value = "用户id", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "pdName", value = "流程名称", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "curPage", value = "当前页", dataType = "int", paramType = "query", example = ""),
+            @ApiImplicitParam(name = "limit", value = "每页条数", dataType = "int", paramType = "query", example = "")
+    })
+    public RestMessage getInvolveTaskFinishList(@RequestParam("userId") String userId,
+                                                @RequestParam("pdName") String pdName,
+                                                @RequestParam("curPage") int curPage,
+                                                @RequestParam("limit") int limit) {
+        RestMessage restMessage = null;
+        List<Map<String, Object>> resultList = new ArrayList<>();
+        try {
+            resultList = taskTypeService.getInvolveTaskFinishList(userId, pdName, curPage, limit);
+            restMessage = RestMessage.success("查询成功", resultList);
+        } catch (Exception e) {
+            restMessage = RestMessage.fail("查询失败", e.getMessage());
+            log.error("根据流程ID查询流程实例,异常:{}", e);
         }
         return restMessage;
     }
