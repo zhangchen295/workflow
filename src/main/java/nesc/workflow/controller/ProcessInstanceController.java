@@ -1,6 +1,9 @@
 package nesc.workflow.controller;
 
-import nesc.workflow.bean.ProcessInsFormBean;
+import nesc.workflow.bean.*;
+import nesc.workflow.model.WfBusinessFormTab;
+import nesc.workflow.model.WfFormTab;
+import nesc.workflow.service.ProcessService;
 import nesc.workflow.utils.ActivitiUtils;
 import nesc.workflow.utils.CommonUtil;
 import nesc.workflow.utils.JackJsonUtil;
@@ -17,6 +20,7 @@ import org.activiti.engine.runtime.ProcessInstanceQuery;
 import org.activiti.engine.task.Comment;
 
 import org.activiti.engine.task.Task;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -29,6 +33,9 @@ import java.util.*;
 @RequestMapping("/workflow/process/instance")
 public class ProcessInstanceController extends BaseController{
 
+
+    @Autowired
+    ProcessService processService;
 
     @PostMapping(path = "startByDefinitionId")
     @ApiOperation(value = "根据流程id启动流程", notes = "每一个流程有对应的一个id这个是某一个流程内固定的写在bpmn内的")
@@ -318,6 +325,27 @@ public class ProcessInstanceController extends BaseController{
         } catch (Exception e) {
             restMessage = RestMessage.fail("完成任务失败", e.getMessage());
             log.error("任务转办,异常:{}", e);
+        }
+        return restMessage;
+    }
+
+    @PostMapping(path = "startWithForm/{processDefKey}")
+    @ApiOperation(value = "根据流程id启动流程", notes = "每一个流程有对应的一个id这个是某一个流程内固定的写在bpmn内的")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "FormBean", value = "流程查询bean", dataType = "FormBean", paramType = "query"),
+            @ApiImplicitParam(name = "processDefKey", value = "流程定义key", dataType = "String", paramType = "path")
+    })
+    public RestMessage startWithForm(@RequestBody FormBean formBean, @PathVariable String processDefKey) {
+        WfFormTab mainForm = formBean.getWfFormTab();
+        WfBusinessFormTab businessForm = formBean.getWfBusinessFormTab();
+        RestMessage restMessage = new RestMessage();
+        ProcessInstance instance = null;
+        try {
+            //processService.startWithForm(mainForm, businessForm, processDefKey);
+            restMessage = RestMessage.success("启动成功", null);
+        } catch (Exception e) {
+            restMessage = RestMessage.fail("启动失败", e.getMessage());
+            log.error("根据流程id启动流程,异常:{}", e);
         }
         return restMessage;
     }

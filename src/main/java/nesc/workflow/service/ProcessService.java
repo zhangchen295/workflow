@@ -1,6 +1,10 @@
 package nesc.workflow.service;
 
+import nesc.workflow.bean.BusinessForm;
+import nesc.workflow.bean.MainForm;
 import nesc.workflow.exception.ServiceException;
+import nesc.workflow.model.WfBusinessFormTab;
+import nesc.workflow.model.WfFormTab;
 import org.activiti.engine.repository.Model;
 
 import java.util.List;
@@ -13,4 +17,6 @@ public interface ProcessService {
     void suspendProcessDef(String deploymentId) throws ServiceException;
 
     void activeProcessDef(String deploymentId) throws ServiceException;
+
+    //void startWithForm(WfFormTab mainForm, WfBusinessFormTab businessForm, String processDefKey) throws ServiceException;
 }

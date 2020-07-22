@@ -2,9 +2,10 @@ package nesc.workflow.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import nesc.workflow.exception.ServiceException;
+import nesc.workflow.model.WfBusinessFormTab;
+import nesc.workflow.model.WfFormTab;
 import nesc.workflow.service.ProcessService;
 import nesc.workflow.utils.CommonUtil;
-import nesc.workflow.utils.RestMessage;
 
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.impl.util.CollectionUtil;
@@ -107,4 +108,12 @@ public class ProcessServiceImpl implements ProcessService {
             throw new ServiceException("根据部署ID激活流程失败", e);
         }
     }
+
+
+    public void startWithForm(WfFormTab mainForm, WfBusinessFormTab businessForm, String processDefKey) throws ServiceException {
+//        long id = wfBaseFormRepository.save(mainForm).getId();
+//        log.info("mainForm save success id:"+id);
+    }
+
+
 }
