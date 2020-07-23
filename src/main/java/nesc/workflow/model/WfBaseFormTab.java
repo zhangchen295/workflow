@@ -7,7 +7,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -16,6 +16,7 @@ import java.util.List;
 public abstract class WfBaseFormTab implements Serializable {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.TABLE)
     private Long id;
 
     @Column(nullable = false)
@@ -40,11 +41,11 @@ public abstract class WfBaseFormTab implements Serializable {
     private int businessType;
 
     @Column(nullable = false)
-    private String desc;
+    private String descStr;
 
 
     public WfBaseFormTab(Date requestDate, String userId, String userName, String departId,
-                    String departName, String title, int businessType, String desc) {
+                    String departName, String title, int businessType, String descStr) {
         this.requestDate = requestDate;
         this.userId = userId;
         this.userName = userName;
@@ -52,6 +53,6 @@ public abstract class WfBaseFormTab implements Serializable {
         this.departName = departName;
         this.title = title;
         this.businessType = businessType;
-        this.desc = desc;
+        this.descStr = descStr;
     }
 }
