@@ -341,7 +341,7 @@ public class ProcessInstanceController extends BaseController{
         RestMessage restMessage = new RestMessage();
         ProcessInstance instance = null;
         try {
-            //processService.startWithForm(mainForm, businessForm, processDefKey);
+            processService.startWithForm(mainForm, businessForm, processDefKey);
             restMessage = RestMessage.success("启动成功", null);
         } catch (Exception e) {
             restMessage = RestMessage.fail("启动失败", e.getMessage());

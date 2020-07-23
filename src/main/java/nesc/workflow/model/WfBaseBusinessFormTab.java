@@ -7,13 +7,13 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-//@Data
-//@Entity
-//@Table(name = "wf_base_business_form_tab")
-//@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Data
+@MappedSuperclass
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class WfBaseBusinessFormTab implements Serializable {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.TABLE)
     private Long id;
     //表名称
     @Column(nullable = false)

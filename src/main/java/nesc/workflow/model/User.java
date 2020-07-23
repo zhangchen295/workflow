@@ -7,7 +7,6 @@ import java.util.Date;
 
 @Data
 @Entity
-@Table(name = "user")
 public class User {
     public User(){
     }

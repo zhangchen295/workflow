@@ -4,21 +4,22 @@ import lombok.extern.slf4j.Slf4j;
 import nesc.workflow.exception.ServiceException;
 import nesc.workflow.model.WfBusinessFormTab;
 import nesc.workflow.model.WfFormTab;
+import nesc.workflow.repository.WfFormTabRepository;
 import nesc.workflow.service.ProcessService;
 import nesc.workflow.utils.CommonUtil;
 
 import org.activiti.engine.RepositoryService;
+import org.activiti.engine.RuntimeService;
 import org.activiti.engine.impl.util.CollectionUtil;
 import org.activiti.engine.repository.ProcessDefinition;
+import org.activiti.engine.runtime.ProcessInstance;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.persistence.EntityManager;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -27,8 +28,17 @@ public class ProcessServiceImpl implements ProcessService {
     @Autowired
     RepositoryService repositoryService;
 
+    @Autowired
+    RuntimeService runtimeService;
+
     @Resource
     CommonUtil commonUtil;
+
+    @Autowired
+    EntityManager entityManager;
+
+    @Autowired
+    WfFormTabRepository wfFormTabRepository;
 
     @Override
     public List<Map<String, Object>> findDefinitionsList(String pdName, int curPage, int limit) throws ServiceException {
@@ -109,10 +119,40 @@ public class ProcessServiceImpl implements ProcessService {
         }
     }
 
+    protected StringBuilder spellSql(WfBusinessFormTab businessForm){
+        StringBuilder sb = new StringBuilder();
+//        entityManager
+        String tab = businessForm.getTabName();
+        Map<String,Object> businessFields = businessForm.getMap();
+
+        sb.append("INSERT INTO");
+        sb.append(tab);
+        sb.append("")
+
+        return null;
+    }
 
     public void startWithForm(WfFormTab mainForm, WfBusinessFormTab businessForm, String processDefKey) throws ServiceException {
 //        long id = wfBaseFormRepository.save(mainForm).getId();
 //        log.info("mainForm save success id:"+id);
+        ProcessInstance instance = null;
+        Optional<String> userId = Optional.of(mainForm.getUserId());
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("initor",userId);
+        try {
+            //保存流程主表单
+            wfFormTabRepository.save(mainForm);
+            //保存流程业务表单
+
+            //启动流程
+            instance = runtimeService.startProcessInstanceByKey(processDefKey, variables);
+            //激活流程
+            repositoryService.activateProcessDefinitionById(def.getId());
+        } catch (Exception e) {
+            log.error("根据部署ID激活流程,异常:{}", e);
+            throw new ServiceException("根据部署ID激活流程失败", e);
+        }
+
     }
 
 
