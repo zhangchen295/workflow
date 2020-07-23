@@ -18,5 +18,5 @@ public interface ProcessService {
 
     void activeProcessDef(String deploymentId) throws ServiceException;
 
-    //void startWithForm(WfFormTab mainForm, WfBusinessFormTab businessForm, String processDefKey) throws ServiceException;
+    void startWithForm(WfFormTab mainForm, WfBusinessFormTab businessForm, String processDefKey) throws ServiceException;
 }

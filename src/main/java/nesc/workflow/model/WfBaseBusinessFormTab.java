@@ -10,8 +10,8 @@ import java.util.Map;
 //@Data
 //@Entity
 //@Table(name = "wf_base_business_form_tab")
-//@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public abstract class WfBaseBusinessFormTab implements Serializable {
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public class WfBaseBusinessFormTab {
 
     @Id
     private Long id;
@@ -20,9 +20,9 @@ public abstract class WfBaseBusinessFormTab implements Serializable {
     private String tabName;
 
     @Transient
-    private Map<String,Object> map;
+    private Map<String,WfField> map;
 
-    public WfBaseBusinessFormTab(String tabName, Map<String,Object> map) {
+    public WfBaseBusinessFormTab(String tabName, Map<String,WfField> map) {
         this.tabName = tabName;
         this.map = map;
     }
