@@ -11,7 +11,7 @@ import java.util.Date;
 @Entity
 @Table(name = "wf_form_tab")
 public class WfFormTab extends WfBaseFormTab{
-    public WfFormTab(Date requestDate, String userId, String userName,
+    public WfFormTab(String requestDate, String userId, String userName,
                      String departId, String departName, String title, int businessType, String descStr) {
         super(requestDate, userId, userName, departId, departName, title, businessType, descStr);
     }

@@ -650,6 +650,7 @@ public class ActivitiUtils {
             LOGGER.error("process instance not exist");
             return;
         }
+
         //获取流程实例
         HistoricProcessInstance processInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(instanceId).singleResult();
         if (processInstance == null) {

@@ -29,7 +29,7 @@ public abstract class WfBaseFormTab implements Serializable {
     private String userName;
 
     @Column(nullable = false)
-    private Date requestDate;
+    private String requestDate;
 
     @Column(nullable = false)
     private String departId;
@@ -44,7 +44,7 @@ public abstract class WfBaseFormTab implements Serializable {
     private String descStr;
 
 
-    public WfBaseFormTab(Date requestDate, String userId, String userName, String departId,
+    public WfBaseFormTab(String requestDate, String userId, String userName, String departId,
                     String departName, String title, int businessType, String descStr) {
         this.requestDate = requestDate;
         this.userId = userId;

@@ -16,7 +16,7 @@ import java.util.Map;
 @RestController
 @Api(tags = "任务相关接口")
 @Slf4j
-@RequestMapping("/workflow/template")
+@RequestMapping("/workflow/form")
 public class FormController {
 
     @PostMapping(path = "saveTemplateForm")
