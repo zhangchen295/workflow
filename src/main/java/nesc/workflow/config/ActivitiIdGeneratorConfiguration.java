@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 /**
  * 自定义id策略
  *
- * @author dinghuang123@gmail.com
  * @since 2020/3/4
  */
 @Component

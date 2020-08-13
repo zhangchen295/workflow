@@ -7,7 +7,6 @@ import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.activiti.engine.impl.persistence.entity.TaskEntityManagerImpl;
 
 /**
- * @author dinghuang123@gmail.com
  * @since 2020/3/16
  */
 

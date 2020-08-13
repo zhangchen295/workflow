@@ -12,7 +12,6 @@ import java.util.List;
 /**
  * 根据提供节点和执行对象id，进行跳转命令
  *
- * @author dinghuang123@gmail.com
  * @since 2020/3/16
  */
 public class SetFLowNodeAndGoCmd implements Command<Void> {

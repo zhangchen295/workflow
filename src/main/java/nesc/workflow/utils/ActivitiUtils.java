@@ -37,10 +37,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/**
- * @author dinghuang123@gmail.com
- * @since 2020/3/3
- */
+
 @Component
 @Transactional(rollbackFor = Exception.class)
 public class ActivitiUtils {

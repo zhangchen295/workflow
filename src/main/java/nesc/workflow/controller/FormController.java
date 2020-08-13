@@ -10,9 +10,17 @@ import nesc.workflow.bean.FormBean;
 import nesc.workflow.bean.FormDesignBean;
 import nesc.workflow.service.FormService;
 import nesc.workflow.utils.RestMessage;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -199,5 +207,81 @@ public class FormController {
             log.error("查询表单列表失败,异常:{}", e);
         }
         return restMessage;
+    }
+
+    @PostMapping(path = "getWfFormFields")
+    @ApiOperation(value = "根据流程key获取表单", notes = "根据流程key获取表单")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pdKey", value = "流程定义key", dataType = "String", paramType = "query")
+    })
+    public RestMessage getWfFormFields(@RequestParam("pdKey") String pdKey) {
+        RestMessage restMessage = null;
+        try {
+            String result = formService.getFormContent(pdKey);
+            restMessage = RestMessage.success("获取流程表单数据成功", result);
+        } catch (Exception e) {
+            restMessage = RestMessage.fail("获取流程表单数据失败", e.getMessage());
+            log.error("获取流程表单数据失败,异常:{}", e);
+            return restMessage;
+        }
+        return restMessage;
+    }
+
+    @PostMapping(path = "saveWfForm")
+    @ApiOperation(value = "保存表单内容", notes = "保存表单内容")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "formBean", value = "流程表单bean", dataType = "FormBean", paramType = "query")
+    })
+    public RestMessage saveWfForm(@RequestBody FormBean form) {
+        RestMessage restMessage = null;
+        try {
+            formService.saveWfForm(form);
+            restMessage = RestMessage.success("保存流程表单数据成功", null);
+        } catch (Exception e) {
+            restMessage = RestMessage.fail("保存流程表单数据失败", e.getMessage());
+            log.error("保存流程表单数据失败,异常:{}", e);
+            return restMessage;
+        }
+        return restMessage;
+    }
+
+    @PostMapping(path = "upload")
+    @ApiOperation(value = "上传流程文件", notes = "")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "流程ID", dataType = "int", paramType = "query", example = ""),
+            @ApiImplicitParam(name = "userId", value = "上传用户ID", dataType = "int", paramType = "query", example = ""),
+            @ApiImplicitParam(name = "uploadFile", value = "上传文件", dataType = "MultiparFile", paramType = "query", example = "")
+    })
+    public RestMessage upload(int id, int userId, MultipartFile uploadFile ){
+        RestMessage restMessage = null;
+        try {
+            formService.upload(uploadFile,id,userId);
+            restMessage = RestMessage.success("上传文件成功", null);
+        } catch (Exception e) {
+            restMessage = RestMessage.fail("上传文件失败", e.getMessage());
+            log.error("上传文件失败,异常:{}", e);
+        }
+        return restMessage;
+    }
+
+    @GetMapping(path = "download")
+    @ApiOperation(value = "下载流程文件", notes = "")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "流程ID", dataType = "int", paramType = "query", example = ""),
+            @ApiImplicitParam(name = "fileName", value = "文件名", dataType = "String", paramType = "query", example = "")
+    })
+    public ResponseEntity<byte[]> download(int id, String fileName) throws IOException {
+        System.out.println(id+fileName);
+        String targetFilePath = "D:\\wrokflow\\files\\"+id+"\\"+fileName;
+        File file = new File(targetFilePath);
+        if(file.exists()){
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDispositionFormData("attachment", file.getName());
+            return new ResponseEntity<byte[]>(FileUtils.readFileToByteArray(file),headers, HttpStatus.OK);
+        }else{
+            System.out.println("文件不存在,请重试...");
+            return null;
+        }
     }
 }

@@ -3,23 +3,32 @@ package nesc.workflow.service.impl;
 import jdk.nashorn.internal.runtime.options.Option;
 import lombok.extern.slf4j.Slf4j;
 import nesc.workflow.bean.BindModelFormBean;
+import nesc.workflow.bean.FormBean;
 import nesc.workflow.bean.FormDesignBean;
 import nesc.workflow.exception.ServiceException;
+import nesc.workflow.model.WfBusinessFormTab;
+import nesc.workflow.model.WfFormTab;
 import nesc.workflow.model.WfModelFormTab;
+import nesc.workflow.repository.WfFormTabRepository;
 import nesc.workflow.repository.WfModelFormTabRepository;
 import nesc.workflow.service.FormService;
 import nesc.workflow.utils.CommonUtil;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.repository.Model;
 import org.activiti.engine.repository.NativeModelQuery;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.*;
 
 @Slf4j
@@ -34,6 +43,12 @@ public class FormServiceImpl implements FormService {
 
     @Autowired
     RepositoryService repositoryService;
+
+    @Autowired
+    WfFormTabRepository wfFormTabRepository;
+
+    @Autowired
+
 
 
     @Resource
@@ -212,6 +227,86 @@ public class FormServiceImpl implements FormService {
             }
             return resultList;
 
+    }
+
+    @Override
+    public String getFormContent(String pdKey) throws ServiceException {
+        StringBuffer sb = new StringBuffer();
+        String result = null;
+        try {
+            sb.append("SELECT " +
+                    "  design.content " +
+                    " FROM " +
+                    "  wf_form_design_tab design " +
+                    "WHERE design.id = " +
+                    "  (SELECT " +
+                    "    form.form_id " +
+                    "  FROM " +
+                    "    wf_model_form_tab form " +
+                    "  WHERE form.model_id = " +
+                    "    (SELECT " +
+                    "      model.ID_ " +
+                    "    FROM " +
+                    "      act_re_procdef def, " +
+                    "      act_re_model model " +
+                    "    WHERE def.KEY_ = ? " +
+                    "      AND def.DEPLOYMENT_ID_ = model.DEPLOYMENT_ID_))");
+            Query query = entityManager.createNativeQuery(sb.toString());
+            query.setParameter(1,pdKey);
+            result = Optional.ofNullable((String)query.getSingleResult()).orElseGet(() -> new String("{}"));
+        } catch (Exception e) {
+            log.error("获取表单内容失败,异常:{}", e);
+            throw new ServiceException("获取表单内容失败", e);
+        }
+        return result;
+    }
+
+    @Override
+    public void saveWfForm(FormBean formBean) throws ServiceException {
+        StringBuffer sb = new StringBuffer();
+        String result = null;
+        try {
+            //流程主表单
+            WfFormTab wfFormTab = formBean.getWfFormTab();
+            //业务表单
+            WfBusinessFormTab wfBusinessFormTab = formBean.getWfBusinessFormTab();
+            //批注
+
+            //附件
+
+
+            Query query = entityManager.createNativeQuery(sb.toString());
+            //query.setParameter(1,pdKey);
+            result = Optional.ofNullable((String)query.getSingleResult()).orElseGet(() -> new String("{}"));
+        } catch (Exception e) {
+            log.error("获取表单内容失败,异常:{}", e);
+            throw new ServiceException("获取表单内容失败", e);
+        }
+        //return result;
+    }
+
+    @Override
+    public void upload(MultipartFile file, int id, int userId) {
+        String targetFilePath = "D:\\wrokflow\\files\\"+id;
+        File dir = new File(targetFilePath);
+        if (!dir.exists()) {// 判断目录是否存在
+            dir.mkdirs();
+        }
+        File targetFile = new File(targetFilePath + File.separator + file.getOriginalFilename());
+        FileOutputStream fileOutputStream = null;
+        try{
+            fileOutputStream = new FileOutputStream(targetFile);
+            IOUtils.copy(file.getInputStream(),fileOutputStream);
+            System.out.println("success");
+        } catch (IOException e){
+            System.out.println("Exception"+e);
+        } finally {
+            try {
+                fileOutputStream.close();
+            } catch (IOException e){
+                System.out.println("Exception"+e);
+            }
+        }
     }
 
 

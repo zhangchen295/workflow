@@ -142,24 +142,24 @@ public class ProcessServiceImpl implements ProcessService {
 
     protected String spellSql(WfBusinessFormTab businessForm, String mainFormId){
         StringBuilder sb = new StringBuilder();
-        String tab = businessForm.getTabName();
-        Map<String, WfField> map = businessForm.getMap();
-        StringBuilder columnsName = new StringBuilder();
-        StringBuilder values = new StringBuilder();
-        sb.append(" INSERT INTO ");
-        sb.append(tab);
-        sb.append(" ( ");
-        map.forEach((k,v)->{
-            columnsName.append(k).append(",");
-            values.append(v.getFiledValue()).append(",");
-        });
-        //添加mainFormId
-        columnsName.append(" mainFormId ").append(" ) ");
-        values.append(mainFormId);
-        sb.append(columnsName);
-        sb.append(" VALUES (");
-        sb.append(values);
-        sb.append(" ) ");
+//        String tab = businessForm.getTabName();
+//        Map<String, WfField> map = businessForm.getMap();
+//        StringBuilder columnsName = new StringBuilder();
+//        StringBuilder values = new StringBuilder();
+//        sb.append(" INSERT INTO ");
+//        sb.append(tab);
+//        sb.append(" ( ");
+//        map.forEach((k,v)->{
+//            columnsName.append(k).append(",");
+//            values.append(v.getFiledValue()).append(",");
+//        });
+//        //添加mainFormId
+//        columnsName.append(" mainFormId ").append(" ) ");
+//        values.append(mainFormId);
+//        sb.append(columnsName);
+//        sb.append(" VALUES (");
+//        sb.append(values);
+//        sb.append(" ) ");append
         return sb.toString();
     }
     @Transactional

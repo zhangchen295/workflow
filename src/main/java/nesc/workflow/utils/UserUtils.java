@@ -6,10 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
-/**
- * @author dinghuang123@gmail.com
- * @since 2020/3/3
- */
+
 public class UserUtils {
 
     private UserUtils() {
